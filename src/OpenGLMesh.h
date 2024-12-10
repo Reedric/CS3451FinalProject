@@ -109,6 +109,9 @@ class OpenGLTriangleMesh : public OpenGLMesh<TriangleMesh<3> >
 				model_matrix[j][i] = _model_matrix(i, j); // j,i = i,j
 	}
 
+	glm::mat4 Get_Model_Matrix() const {
+        return model_matrix;
+    }
 	void Set_Ka(const Vector3f& color) { ka[0] = color[0]; ka[1] = color[1]; ka[2] = color[2]; }
 	void Set_Kd(const Vector3f& color) { kd[0] = color[0]; kd[1] = color[1]; kd[2] = color[2]; }
 	void Set_Ks(const Vector3f& color) { ks[0] = color[0]; ks[1] = color[1]; ks[2] = color[2]; }
