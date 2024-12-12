@@ -21,6 +21,7 @@ class OpenGLUICommand;
 class OpenGLViewer
 {
 public:
+    std::string name; // name of the mesh
 	std::string output_dir;
 	std::string config_file_name;
 	std::shared_ptr<OpenGLWindow> opengl_window=nullptr;

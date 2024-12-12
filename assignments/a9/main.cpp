@@ -15,6 +15,9 @@
 #include <string>
 #include <cmath>
 
+#include <cstdlib> // For rand() and srand()
+#include <ctime>   // For time()
+
 #ifndef __Main_cpp__
 #define __Main_cpp__
 
@@ -88,8 +91,9 @@ class MyDriver : public OpenGLViewer
     OpenGLBgEffect *bgEffect = nullptr;
     OpenGLSkybox *skybox = nullptr;
     clock_t startTime;
+    float groundLevel = -10.;
+    int snowNum = 200;
     std::vector<Fire> fireParticles;
-
 public:
     virtual void Initialize()
     {
@@ -132,6 +136,11 @@ public:
         OpenGLTextureLibrary::Instance()->Add_Texture_From_File("tex/bunny_normal.png", "bunny_normal");
         OpenGLTextureLibrary::Instance()->Add_Texture_From_File("tex/window.png", "window_color");
         OpenGLTextureLibrary::Instance()->Add_Texture_From_File("tex/buzz_color.png", "buzz_color");
+        OpenGLTextureLibrary::Instance()->Add_Texture_From_File("tex/star_unoriginal3.png", "snow_color");
+
+        // OpenGLTextureLibrary::Instance()->Add_Texture_From_File("tex/snow_color.png", "snow_color");
+
+
         OpenGLTextureLibrary::Instance()->Add_Texture_From_File("tex/star.png", "star_color");
         OpenGLTextureLibrary::Instance()->Add_Texture_From_File("tex/Campfire_MAT_BaseColor_00.jpg", "campfire_color");
         OpenGLTextureLibrary::Instance()->Add_Texture_From_File("tex/Campfire_MAT_Normal_DX.jpg", "campfire_normal");
@@ -157,22 +166,22 @@ public:
         //// By default, Option (2) (Buzz stars) is turned on, and all the other three are commented out.
         
         //// Background Option (1): Gradient color
-        /*
+        
         {
             auto bg = Add_Interactive_Object<OpenGLBackground>();
             bg->Set_Color(OpenGLColor(0.1f, 0.1f, 0.1f, 1.f), OpenGLColor(0.3f, 0.1f, .1f, 1.f));
             bg->Initialize();
         }
-        */
+        
 
         //// Background Option (2): Programmable Canvas
         //// By default, we load a GT buzz + a number of stars
-        {
-            bgEffect = Add_Interactive_Object<OpenGLBgEffect>();
-            bgEffect->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("stars"));
-            bgEffect->Add_Texture("tex_buzz", OpenGLTextureLibrary::Get_Texture("buzz_color")); // bgEffect can also Add_Texture
-            bgEffect->Initialize();
-        }
+        // {
+        //     bgEffect = Add_Interactive_Object<OpenGLBgEffect>();
+        //     bgEffect->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("stars"));
+        //     bgEffect->Add_Texture("tex_buzz", OpenGLTextureLibrary::Get_Texture("buzz_color")); // bgEffect can also Add_Texture
+        //     bgEffect->Initialize();
+        // }
         
         //// Background Option (3): Sky box
         //// Here we provide a default implementation of a sky box; customize it for your own sky box
@@ -224,6 +233,63 @@ public:
         // }
 
         //// Here we load a bunny object with the basic shader to show how to add an object into the scene
+        {
+            //// create object by reading an obj mesh
+            auto bunny = Add_Obj_Mesh_Object("obj/bunny.obj");
+
+            //// set object's transform
+            Matrix4f t;
+            t << 1, 0, 0, 1.5,
+                0, 1, 0, 0,
+                0, 0, 1, 0,
+                0, 0, 0, 1;
+            Matrix4f scaler;
+            bunny->Set_Model_Matrix(t);
+
+            //// set object's material
+            bunny->Set_Ka(Vector3f(0.1, 0.1, 0.1));
+            bunny->Set_Kd(Vector3f(0.7, 0.7, 0.7));
+            bunny->Set_Ks(Vector3f(2, 2, 2));
+            bunny->Set_Shininess(128);
+
+            //// bind texture to object
+            bunny->Add_Texture("tex_color", OpenGLTextureLibrary::Get_Texture("bunny_color"));
+            bunny->Add_Texture("tex_normal", OpenGLTextureLibrary::Get_Texture("bunny_normal"));
+
+            //// bind shader to object
+            bunny->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("basic"));
+        }
+
+        //// Here we show an example of adding a mesh with noise-terrain (A6)
+        // {
+        //     //// create object by reading an obj mesh
+        //     auto terrain = Add_Obj_Mesh_Object("obj/plane.obj");
+
+        //     //// set object's transform
+        //     Matrix4f r, s, t;
+        //     r << 1, 0, 0, 0,
+        //         0, 0.5, 0.67, 0,
+        //         0, -0.67, 0.5, 0,
+        //         0, 0, 0, 1;
+        //     s << 0.5, 0, 0, 0,
+        //         0, 0.5, 0, 0,
+        //         0, 0, 0.5, 0,
+        //         0, 0, 0, 1;
+        //     t << 1, 0, 0, -2,
+        //          0, 1, 0, 0.5,
+        //          0, 0, 1, 0,
+        //          0, 0, 0, 1,
+        //     terrain->Set_Model_Matrix(t * s * r);
+
+        //     //// set object's material
+        //     terrain->Set_Ka(Vector3f(0.1f, 0.1f, 0.1f));
+        //     terrain->Set_Kd(Vector3f(0.7f, 0.7f, 0.7f));
+        //     terrain->Set_Ks(Vector3f(1, 1, 1));
+        //     terrain->Set_Shininess(128.f);
+
+        //     //// bind shader to object (we do not bind texture for this object because we create noise for texture)
+        //     terrain->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("terrain"));
+        // }
         // {
         //     //// create object by reading an obj mesh
         //     auto bunny = Add_Obj_Mesh_Object("obj/bunny.obj");
@@ -327,6 +393,66 @@ public:
 
         /* Load and render fire place */
         {
+            //// create object by reading an obj mesh
+            srand(time(0)); // Seed with the current time
+
+
+
+            for (int i = 0; i < snowNum; i++) {
+
+                int randomNumberX = std::rand() % 15 - 7;
+                int randomNumberY = 1 + std::rand() % (5 - 1 + 1); 
+                int randomNumberZ = std::rand() % 19 - 15;
+                
+
+
+                auto sqad = Add_Obj_Mesh_Object("obj/sqad.obj");
+                sqad->name = "Snow";
+                sqad->Get_Model_Matrix();
+                // std::cout << randomNumber << std::endl;
+
+                //// set object's transform
+
+                Matrix4f t;
+                t << 1, 0, 0, randomNumberX,
+                    0, 1, 0, randomNumberY,
+                    0, 0, 1, randomNumberZ,
+                    0, 0, 0, 1;
+                sqad->Set_Model_Matrix(t);
+
+                //// bind texture to object
+                // sqad->Add_Texture("tex_color", OpenGLTextureLibrary::Get_Texture("star_color"));
+
+
+                sqad->Add_Texture("tex_color", OpenGLTextureLibrary::Get_Texture("snow_color"));
+
+
+                //// bind shader to object
+                sqad->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("billboard"));
+            }
+
+           
+        }
+
+
+        {
+            //// create object by reading an obj mesh
+            // auto sqad = Add_Obj_Mesh_Object("obj/sqad.obj");
+            // sqad->name = "Snow";
+
+            // //// set object's transform
+            // Matrix4f t;
+            // t << 1, 0, 0, 1,
+            //      0, 1, 0, 0,
+            //      0, 0, 1, 2.5,
+            //      0, 0, 0, 1;
+            // sqad->Set_Model_Matrix(t);
+
+            // //// bind texture to object
+            // sqad->Add_Texture("tex_color", OpenGLTextureLibrary::Get_Texture("star_color"));
+
+            // //// bind shader to object
+            // sqad->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("billboard"));
             /* create object by reading an obj mesh */
             auto fireplace = Add_Obj_Mesh_Object("obj/campfire.OBJ");
 
@@ -510,8 +636,53 @@ public:
     //// Go to next frame
     virtual void Toggle_Next_Frame()
     {
+        GLfloat timeElapsed = GLfloat(clock() - startTime) / CLOCKS_PER_SEC;
         for (auto &mesh_obj : mesh_object_array)
             mesh_obj->setTime(GLfloat(clock() - startTime) / CLOCKS_PER_SEC);
+        for (auto &mesh_obj : mesh_object_array)
+        {
+            if (mesh_obj->name == "Snow") 
+            {
+                glm::mat4 currentTransform = mesh_obj->Get_Model_Matrix();
+                int depth = currentTransform[3][2];
+                currentTransform[3][1] -= 0.025f; 
+                if (depth >= -6) {
+                    currentTransform[3][1] -= 0.026f; 
+                }
+                if (depth >= -1) {
+                    currentTransform[3][1] -= 0.028f; 
+                }
+
+                float frequency = 0.05f;        
+                float amplitude = 0.08f;        
+                currentTransform[3][0] += amplitude * sin(frequency * 5 + (depth / 2)); 
+
+                // float frequency = 0.05f;        
+                // float amplitude = 0.08f;        
+                currentTransform[3][2] += .02 * cos(frequency / 10); 
+
+                if (currentTransform[3][1] < -2.5 || currentTransform[3][0] > 10 || currentTransform[3][0] < -10)  
+                {
+                    currentTransform[3][1] = 5.0f;  
+                    currentTransform[3][0] = std::rand() % 15 - 7;  
+                    currentTransform[3][2] = std::rand() % 19 - 15;
+                }
+                Eigen::Matrix<float, 4, 4> eigenMatrix;
+                for (int i = 0; i < 4; i++) {
+                    for (int j = 0; j < 4; j++) {
+                        eigenMatrix(i, j) = currentTransform[j][i];  
+                    }
+                }
+                mesh_obj->Set_Model_Matrix(eigenMatrix);
+            }
+        }
+        
+
+
+
+
+
+
 
         if (bgEffect){
             bgEffect->setResolution((float)Win_Width(), (float)Win_Height());
