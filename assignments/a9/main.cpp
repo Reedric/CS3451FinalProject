@@ -145,6 +145,8 @@ public:
         OpenGLTextureLibrary::Instance()->Add_Texture_From_File("tex/Campfire_MAT_BaseColor_00.jpg", "campfire_color");
         OpenGLTextureLibrary::Instance()->Add_Texture_From_File("tex/Campfire_MAT_Normal_DX.jpg", "campfire_normal");
         OpenGLTextureLibrary::Instance()->Add_Texture_From_File("tex/fire.png", "fire_color");
+        OpenGLTextureLibrary::Instance()->Add_Texture_From_File("tex/Final_Tent_Tent_BaseColor.png", "tent_color");
+        OpenGLTextureLibrary::Instance()->Add_Texture_From_File("tex/Final_Tent_Tent_Normal.png", "tent_normal");
 
         //// Add all the lights you need for the scene (no more than 4 lights)
         //// The four parameters are position, ambient, diffuse, and specular.
@@ -156,7 +158,7 @@ public:
         opengl_window->Add_Light(Vector3f(3, 1, 3), Vector3f(0.1f, 0.1f, 0.1f), Vector3f(1, 1, 1), Vector3f(0.5f, 0.5f, 0.5f)); 
         opengl_window->Add_Light(Vector3f(0, 0, -5), Vector3f(0.1f, 0.1f, 0.1f), Vector3f(0.9f, 0.9f, 0.9f), Vector3f(0.5f, 0.5f, 0.5f));
         opengl_window->Add_Light(Vector3f(-5, 1, 3), Vector3f(0.1f, 0.1f, 0.1f), Vector3f(0.9f, 0.9f, 0.9f), Vector3f(0.5f, 0.5f, 0.5f));
-        opengl_window->Add_Light(Vector3f(1, 0, -3), Vector3f(0.1f, 0.1f, 0.1f), Vector3f(0.9f, 0.9f, 0.9f), Vector3f(0.5f, 0.5f, 0.5f));
+        // opengl_window->Add_Light(Vector3f(1, 0, -3), Vector3f(0.1f, 0.1f, 0.1f), Vector3f(0.9f, 0.9f, 0.9f), Vector3f(0.5f, 0.5f, 0.5f));
 
         //// Add the background / environment
         //// Here we provide you with four default options to create the background of your scene:
@@ -328,13 +330,13 @@ public:
                 0, 0, 1, 0,
                 0, -1, 0, 0,
                 0, 0, 0, 1;
-            s << 4.0, 0, 0, 0,
-                0, 4.0, 0, 0,
-                0, 0, 4.0, 0,
+            s << 12.0, 0, 0, 0,
+                0, 12.0, 0, 0,
+                0, 0, 12.0, 0,
                 0, 0, 0, 1;
-            t << 1, 0, 0, -2,
+            t << 1, 0, 0, -8,
                  0, 1, 0, 0,
-                 0, 0, 1, 0,
+                 0, 0, 1, 7,
                  0, 0, 0, 1,
             terrain->Set_Model_Matrix(t * s * r);
 
@@ -435,27 +437,9 @@ public:
            
         }
 
-
+        /* Campfire */
         {
-            //// create object by reading an obj mesh
-            // auto sqad = Add_Obj_Mesh_Object("obj/sqad.obj");
-            // sqad->name = "Snow";
-
-            // //// set object's transform
-            // Matrix4f t;
-            // t << 1, 0, 0, 1,
-            //      0, 1, 0, 0,
-            //      0, 0, 1, 2.5,
-            //      0, 0, 0, 1;
-            // sqad->Set_Model_Matrix(t);
-
-            // //// bind texture to object
-            // sqad->Add_Texture("tex_color", OpenGLTextureLibrary::Get_Texture("star_color"));
-
-            // //// bind shader to object
-            // sqad->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("billboard"));
-            /* create object by reading an obj mesh */
-            auto fireplace = Add_Obj_Mesh_Object("obj/campfire.OBJ");
+            auto campfire = Add_Obj_Mesh_Object("obj/campfire.OBJ");
 
             /* set object's transform */
             Matrix4f t;
@@ -463,14 +447,38 @@ public:
                 0, 0.02f, 0, 0,
                 0, 0, 0.02f, -3.0f,
                 0, 0, 0, 1;
-            fireplace->Set_Model_Matrix(t);
+            campfire->Set_Model_Matrix(t);
 
             /* bind texture to object */
-            fireplace->Add_Texture("tex_color", OpenGLTextureLibrary::Get_Texture("campfire_color"));
-            fireplace->Add_Texture("tex_normal", OpenGLTextureLibrary::Get_Texture("campfire_normal"));
+            campfire->Add_Texture("tex_color", OpenGLTextureLibrary::Get_Texture("campfire_color"));
+            campfire->Add_Texture("tex_normal", OpenGLTextureLibrary::Get_Texture("campfire_normal"));
 
             /* bind shader to object */
-            fireplace->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("basic"));
+            campfire->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("basic"));
+        }
+
+        /* Add tent to scene */
+        {
+            auto tent = Add_Obj_Mesh_Object("obj/tent.OBJ");
+
+            /* set object's transform */
+            Matrix4f t, r;
+            t << 1, 0, 0, 5.0f,
+                0, 1, 0, 0,
+                0, 0, 1, -8.0f,
+                0, 0, 0, 1;
+            r << cos(PI / 4), 0, -sin(PI / 4), 0,
+                0, 1, 0, 0,
+                sin(PI / 4), 0, cos(PI / 4), 0,
+                0, 0, 0, 1;
+            tent->Set_Model_Matrix(t * r);
+
+            /* bind texture to object */
+            tent->Add_Texture("tex_color", OpenGLTextureLibrary::Get_Texture("tent_color"));
+            tent->Add_Texture("tex_normal", OpenGLTextureLibrary::Get_Texture("tent_normal"));
+
+            /* bind shader to object */
+            tent->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("basic"));
         }
 
         /* Flame on campfire */
@@ -554,6 +562,8 @@ public:
                 fireParticles.push_back(curr);
             }
         }
+
+        
 
         //// Here we show an example of shading (ray-tracing) a sphere with environment mapping
         /*
