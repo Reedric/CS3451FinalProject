@@ -31,7 +31,7 @@ class MyDriver : public OpenGLViewer
     OpenGLSkybox *skybox = nullptr;
     clock_t startTime;
     float groundLevel = -10.;
-    int snowNum = 20;
+    int snowNum = 200;
 public:
     virtual void Initialize()
     {
@@ -74,7 +74,7 @@ public:
         OpenGLTextureLibrary::Instance()->Add_Texture_From_File("tex/bunny_normal.png", "bunny_normal");
         OpenGLTextureLibrary::Instance()->Add_Texture_From_File("tex/window.png", "window_color");
         OpenGLTextureLibrary::Instance()->Add_Texture_From_File("tex/buzz_color.png", "buzz_color");
-        OpenGLTextureLibrary::Instance()->Add_Texture_From_File("tex/star.png", "star_color");
+        OpenGLTextureLibrary::Instance()->Add_Texture_From_File("tex/star_unoriginal3.png", "snow_color");
 
         // OpenGLTextureLibrary::Instance()->Add_Texture_From_File("tex/snow_color.png", "snow_color");
 
@@ -177,6 +177,7 @@ public:
                 0, 1, 0, 0,
                 0, 0, 1, 0,
                 0, 0, 0, 1;
+            Matrix4f scaler;
             bunny->Set_Model_Matrix(t);
 
             //// set object's material
@@ -257,9 +258,9 @@ public:
 
             for (int i = 0; i < snowNum; i++) {
 
-                int randomNumberX = std::rand() % 6 - 3; 
+                int randomNumberX = std::rand() % 15 - 7;
                 int randomNumberY = 1 + std::rand() % (5 - 1 + 1); 
-                int randomNumberZ = std::rand() % 6 - 3; 
+                int randomNumberZ = std::rand() % 19 - 15;
                 
 
 
@@ -278,10 +279,10 @@ public:
                 sqad->Set_Model_Matrix(t);
 
                 //// bind texture to object
-                sqad->Add_Texture("tex_color", OpenGLTextureLibrary::Get_Texture("star_color"));
+                // sqad->Add_Texture("tex_color", OpenGLTextureLibrary::Get_Texture("star_color"));
 
 
-                // sqad->Add_Texture("tex_color", OpenGLTextureLibrary::Get_Texture("snow_color"));
+                sqad->Add_Texture("tex_color", OpenGLTextureLibrary::Get_Texture("snow_color"));
 
 
                 //// bind shader to object
@@ -394,60 +395,51 @@ public:
     //// Go to next frame
     virtual void Toggle_Next_Frame()
     {
-
         GLfloat timeElapsed = GLfloat(clock() - startTime) / CLOCKS_PER_SEC;
-
         for (auto &mesh_obj : mesh_object_array)
             mesh_obj->setTime(GLfloat(clock() - startTime) / CLOCKS_PER_SEC);
-
-
         for (auto &mesh_obj : mesh_object_array)
         {
-            if (mesh_obj->name == "Snow")  // Check if it's the sqad mesh
+            if (mesh_obj->name == "Snow") 
             {
-
                 glm::mat4 currentTransform = mesh_obj->Get_Model_Matrix();
+                int depth = currentTransform[3][2];
+                currentTransform[3][1] -= 0.025f; 
+                if (depth >= -6) {
+                    currentTransform[3][1] -= 0.026f; 
+                }
+                if (depth >= -1) {
+                    currentTransform[3][1] -= 0.028f; 
+                }
 
-                // Modify the Y position (falling effect)
-                currentTransform[3][1] -= 0.01f;  // Move the mesh down by 0.01 units (adjust speed as needed)
+                float frequency = 0.05f;        
+                float amplitude = 0.08f;        
+                currentTransform[3][0] += amplitude * sin(frequency * 5 + (depth / 2)); 
 
-                // Check if the snowflake has reached the "ground"
-                if (currentTransform[3][1] < -2.5)  // Assume -5 is the ground level
+                // float frequency = 0.05f;        
+                // float amplitude = 0.08f;        
+                currentTransform[3][2] += .02 * cos(frequency / 10); 
+
+                if (currentTransform[3][1] < -2.5 || currentTransform[3][0] > 10 || currentTransform[3][0] < -10)  
                 {
-                    currentTransform[3][1] = 5.0f;  // Start at a height of 5.0f
-                    currentTransform[3][0] = std::rand() % 7 - 3;  // Randomize X position (-3 to 3)
-                    currentTransform[3][2] = std::rand() % 7 - 3;  // Randomize Z position (-3 to 3)
+                    currentTransform[3][1] = 5.0f;  
+                    currentTransform[3][0] = std::rand() % 15 - 7;  
+                    currentTransform[3][2] = std::rand() % 19 - 15;
                 }
                 Eigen::Matrix<float, 4, 4> eigenMatrix;
                 for (int i = 0; i < 4; i++) {
                     for (int j = 0; j < 4; j++) {
-                        eigenMatrix(i, j) = currentTransform[j][i];  // Copy data from glm::mat4 to Eigen::Matrix
+                        eigenMatrix(i, j) = currentTransform[j][i];  
                     }
                 }
                 mesh_obj->Set_Model_Matrix(eigenMatrix);
-
-
-
-                // Matrix4f t;
-
-                // Apply rotation around the Y-axis (you can modify this for other animations)
-                // float rotationAngle = timeElapsed * 30.0f;  // Rotate 30 degrees per second
-                // t << cos(rotationAngle), 0, sin(rotationAngle), 0,
-                //     0, 1, 0, 0,
-                //     -sin(rotationAngle), 0, cos(rotationAngle), 0,
-                //     0, 0, 0, 1;
-
-                // Apply vertical movement (up and down)
-                // float verticalMovement = sin(timeElapsed) * 2.0f;  // Example: Sinusoidal movement with amplitude of 2 units
-
-                // Update the translation part of the matrix (third column, fourth row)
-                // t(1, 3) = verticalMovement;  // Modify the Y translation value (index (1, 3))
-
-                // Update the model matrix of the sqad mesh
-                // mesh_obj->Set_Model_Matrix(t);
-
             }
         }
+        
+
+
+
+
 
 
 
