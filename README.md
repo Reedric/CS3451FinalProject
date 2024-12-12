@@ -1,4 +1,4 @@
-# CS3451 Computer Graphics Starter Code
+# Computer Graphics Project
 
 ## 0. Quick Guide
 
