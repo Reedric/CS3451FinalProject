@@ -1,4 +1,4 @@
-# Computer Graphics Project
+# Graphics Project
 
 snowy camp ground
 
