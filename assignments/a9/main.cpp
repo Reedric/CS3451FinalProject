@@ -92,7 +92,7 @@ class MyDriver : public OpenGLViewer
     OpenGLSkybox *skybox = nullptr;
     clock_t startTime;
     float groundLevel = -10.;
-    int snowNum = 200;
+    int snowNum = 600;
     std::vector<Fire> fireParticles;
 public:
     virtual void Initialize()
@@ -135,7 +135,7 @@ public:
         OpenGLTextureLibrary::Instance()->Add_Texture_From_File("tex/bunny_color.jpg", "bunny_color");
         OpenGLTextureLibrary::Instance()->Add_Texture_From_File("tex/bunny_normal.png", "bunny_normal");
         OpenGLTextureLibrary::Instance()->Add_Texture_From_File("tex/window.png", "window_color");
-        OpenGLTextureLibrary::Instance()->Add_Texture_From_File("tex/buzz_color.png", "buzz_color");
+        OpenGLTextureLibrary::Instance()->Add_Texture_From_File("tex/snow_tree.png", "snow_tree");
         OpenGLTextureLibrary::Instance()->Add_Texture_From_File("tex/star_unoriginal3.png", "snow_color");
 
         // OpenGLTextureLibrary::Instance()->Add_Texture_From_File("tex/snow_color.png", "snow_color");
@@ -293,31 +293,85 @@ public:
         //     //// bind shader to object (we do not bind texture for this object because we create noise for texture)
         //     terrain->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("terrain"));
         // }
-        // {
-        //     //// create object by reading an obj mesh
-        //     auto bunny = Add_Obj_Mesh_Object("obj/bunny.obj");
 
-        //     //// set object's transform
-        //     Matrix4f t;
-        //     t << 1, 0, 0, 1.5,
-        //         0, 1, 0, 0,
-        //         0, 0, 1, 0,
-        //         0, 0, 0, 1;
-        //     bunny->Set_Model_Matrix(t);
+        {
+            //// create object by reading an obj mesh
+            auto bunny = Add_Obj_Mesh_Object("obj/tree.obj");
 
-        //     //// set object's material
-        //     bunny->Set_Ka(Vector3f(0.1, 0.1, 0.1));
-        //     bunny->Set_Kd(Vector3f(0.7, 0.7, 0.7));
-        //     bunny->Set_Ks(Vector3f(2, 2, 2));
-        //     bunny->Set_Shininess(128);
+            //// set object's transform
+            Matrix4f t;
+            t << .5f, 0, 0, 55,
+                0, .3f, 0, 0,
+                0, 0, .5f, -70,
+                0, 0, 0, 1;
+            bunny->Set_Model_Matrix(t);
 
-        //     //// bind texture to object
-        //     bunny->Add_Texture("tex_color", OpenGLTextureLibrary::Get_Texture("bunny_color"));
-        //     bunny->Add_Texture("tex_normal", OpenGLTextureLibrary::Get_Texture("bunny_normal"));
+            //// set object's material
+            // bunny->Set_Ka(Vector3f(0.1, 0.1, 0.1));
+            // bunny->Set_Kd(Vector3f(0.7, 0.7, 0.7));
+            // bunny->Set_Ks(Vector3f(2, 2, 2));
+            // bunny->Set_Shininess(128);
 
-        //     //// bind shader to object
-        //     bunny->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("basic"));
-        // }
+            //// bind texture to object
+            bunny->Add_Texture("tex_color", OpenGLTextureLibrary::Get_Texture("snow_tree"));
+            // bunny->Add_Texture("tex_normal", OpenGLTextureLibrary::Get_Texture("bunny_normal"));
+
+            //// bind shader to object
+            bunny->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("basic"));
+        }
+
+
+        {
+            //// create object by reading an obj mesh
+            auto bunny = Add_Obj_Mesh_Object("obj/tree.obj");
+
+            //// set object's transform
+            Matrix4f t;
+            t << .5f, 0, 0, 60,
+                0, .3f, 0, 0,
+                0, 0, .5f, -60,
+                0, 0, 0, 1;
+            bunny->Set_Model_Matrix(t);
+
+            //// set object's material
+            // bunny->Set_Ka(Vector3f(0.1, 0.1, 0.1));
+            // bunny->Set_Kd(Vector3f(0.7, 0.7, 0.7));
+            // bunny->Set_Ks(Vector3f(2, 2, 2));
+            // bunny->Set_Shininess(128);
+
+            //// bind texture to object
+            bunny->Add_Texture("tex_color", OpenGLTextureLibrary::Get_Texture("snow_tree"));
+            // bunny->Add_Texture("tex_normal", OpenGLTextureLibrary::Get_Texture("bunny_normal"));
+
+            //// bind shader to object
+            bunny->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("basic"));
+        }
+
+        {
+            //// create object by reading an obj mesh
+            auto bunny = Add_Obj_Mesh_Object("obj/tree.obj");
+
+            //// set object's transform
+            Matrix4f t;
+            t << .5f, 0, 0, 50,
+                0, .3f, 0, 0,
+                0, 0, .5f, -70,
+                0, 0, 0, 1;
+            bunny->Set_Model_Matrix(t);
+
+            //// set object's material
+            // bunny->Set_Ka(Vector3f(0.1, 0.1, 0.1));
+            // bunny->Set_Kd(Vector3f(0.7, 0.7, 0.7));
+            // bunny->Set_Ks(Vector3f(2, 2, 2));
+            // bunny->Set_Shininess(128);
+
+            //// bind texture to object
+            bunny->Add_Texture("tex_color", OpenGLTextureLibrary::Get_Texture("snow_tree"));
+            // bunny->Add_Texture("tex_normal", OpenGLTextureLibrary::Get_Texture("bunny_normal"));
+
+            //// bind shader to object
+            bunny->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("basic"));
+        }
 
         //// Here we show an example of adding a mesh with noise-terrain (A6)
         {
@@ -341,8 +395,8 @@ public:
             terrain->Set_Model_Matrix(t * s * r);
 
             //// set object's material
-            terrain->Set_Ka(Vector3f(0.1f, 0.1f, 0.1f));
-            terrain->Set_Kd(Vector3f(0.7f, 0.7f, 0.7f));
+            terrain->Set_Ka(Vector3f(.8f, 0.8f, 0.8f));
+            terrain->Set_Kd(Vector3f(1.f, 1.f, 1.f));
             terrain->Set_Ks(Vector3f(1, 1, 1));
             terrain->Set_Shininess(128.f);
 
@@ -404,7 +458,7 @@ public:
             for (int i = 0; i < snowNum; i++) {
 
                 int randomNumberX = std::rand() % 15 - 7;
-                int randomNumberY = 1 + std::rand() % (5 - 1 + 1); 
+                int randomNumberY = 1 + std::rand() % 7;
                 int randomNumberZ = std::rand() % 19 - 15;
                 
 
@@ -667,14 +721,12 @@ public:
                 float frequency = 0.05f;        
                 float amplitude = 0.08f;        
                 currentTransform[3][0] += amplitude * sin(frequency * 5 + (depth / 2)); 
-
-                // float frequency = 0.05f;        
-                // float amplitude = 0.08f;        
+     
                 currentTransform[3][2] += .02 * cos(frequency / 10); 
 
-                if (currentTransform[3][1] < -2.5 || currentTransform[3][0] > 10 || currentTransform[3][0] < -10)  
+                if (currentTransform[3][1] < -2.5 || currentTransform[3][0] > 20 || currentTransform[3][0] < -15)  
                 {
-                    currentTransform[3][1] = 5.0f;  
+                    currentTransform[3][1] = 7;  
                     currentTransform[3][0] = std::rand() % 15 - 7;  
                     currentTransform[3][2] = std::rand() % 19 - 15;
                 }
