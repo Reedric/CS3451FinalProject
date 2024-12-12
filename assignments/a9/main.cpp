@@ -294,84 +294,7 @@ public:
         //     terrain->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("terrain"));
         // }
 
-        {
-            //// create object by reading an obj mesh
-            auto bunny = Add_Obj_Mesh_Object("obj/tree.obj");
-
-            //// set object's transform
-            Matrix4f t;
-            t << .5f, 0, 0, 55,
-                0, .3f, 0, 0,
-                0, 0, .5f, -70,
-                0, 0, 0, 1;
-            bunny->Set_Model_Matrix(t);
-
-            //// set object's material
-            // bunny->Set_Ka(Vector3f(0.1, 0.1, 0.1));
-            // bunny->Set_Kd(Vector3f(0.7, 0.7, 0.7));
-            // bunny->Set_Ks(Vector3f(2, 2, 2));
-            // bunny->Set_Shininess(128);
-
-            //// bind texture to object
-            bunny->Add_Texture("tex_color", OpenGLTextureLibrary::Get_Texture("snow_tree"));
-            // bunny->Add_Texture("tex_normal", OpenGLTextureLibrary::Get_Texture("bunny_normal"));
-
-            //// bind shader to object
-            bunny->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("basic"));
-        }
-
-
-        {
-            //// create object by reading an obj mesh
-            auto bunny = Add_Obj_Mesh_Object("obj/tree.obj");
-
-            //// set object's transform
-            Matrix4f t;
-            t << .5f, 0, 0, 60,
-                0, .3f, 0, 0,
-                0, 0, .5f, -60,
-                0, 0, 0, 1;
-            bunny->Set_Model_Matrix(t);
-
-            //// set object's material
-            // bunny->Set_Ka(Vector3f(0.1, 0.1, 0.1));
-            // bunny->Set_Kd(Vector3f(0.7, 0.7, 0.7));
-            // bunny->Set_Ks(Vector3f(2, 2, 2));
-            // bunny->Set_Shininess(128);
-
-            //// bind texture to object
-            bunny->Add_Texture("tex_color", OpenGLTextureLibrary::Get_Texture("snow_tree"));
-            // bunny->Add_Texture("tex_normal", OpenGLTextureLibrary::Get_Texture("bunny_normal"));
-
-            //// bind shader to object
-            bunny->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("basic"));
-        }
-
-        {
-            //// create object by reading an obj mesh
-            auto bunny = Add_Obj_Mesh_Object("obj/tree.obj");
-
-            //// set object's transform
-            Matrix4f t;
-            t << .5f, 0, 0, 50,
-                0, .3f, 0, 0,
-                0, 0, .5f, -70,
-                0, 0, 0, 1;
-            bunny->Set_Model_Matrix(t);
-
-            //// set object's material
-            // bunny->Set_Ka(Vector3f(0.1, 0.1, 0.1));
-            // bunny->Set_Kd(Vector3f(0.7, 0.7, 0.7));
-            // bunny->Set_Ks(Vector3f(2, 2, 2));
-            // bunny->Set_Shininess(128);
-
-            //// bind texture to object
-            bunny->Add_Texture("tex_color", OpenGLTextureLibrary::Get_Texture("snow_tree"));
-            // bunny->Add_Texture("tex_normal", OpenGLTextureLibrary::Get_Texture("bunny_normal"));
-
-            //// bind shader to object
-            bunny->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("basic"));
-        }
+        
 
         //// Here we show an example of adding a mesh with noise-terrain (A6)
         {
@@ -491,6 +414,133 @@ public:
            
         }
 
+        /* Fire particles */
+        {
+
+            //// create object's transform
+            Matrix4f t;
+            t << 0.1f, 0.0f, 0.0f, 1.0f,
+                0.0f, 0.1f, 0.0f, 0.0f,
+                0.0f, 0.0f, 0.1f, -3.0f,
+                0.0f, 0.0f, 0.0f, 1.0f;
+
+            /* Define random number generator */
+            std::random_device rd;
+            std::default_random_engine generator(rd());
+            std::uniform_real_distribution<double> distribution(-1.0, 1.0);
+            /* create 8 fire particles */
+            for (int i = 0; i < NUM_FIRE_PARTICLES; ++i)
+            {
+                //// create object by reading an obj mesh
+                auto sqad = Add_Obj_Mesh_Object("obj/sqad.obj");
+
+                //// create vector multipliers
+
+                std::vector<double> vel;
+                vel.push_back(distribution(generator));
+                vel.push_back(distribution(generator) * 0.7 + 0.9);
+                vel.push_back(distribution(generator));
+
+                //// set model matrix
+                sqad->Set_Model_Matrix(t);
+
+                //// bind texture to object
+                sqad->Add_Texture("tex_color", OpenGLTextureLibrary::Get_Texture("fire_color"));
+
+                //// bind shader to object
+                sqad->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("billboard"));
+
+                /* Calculate time offset */
+                clock_t time = clock() + i * (2000 / NUM_FIRE_PARTICLES);
+                // std::cout << time << std::endl;
+
+                //// instantiate fire object
+                Fire curr(sqad, time, vel, t);
+
+                //// add particle to fire particles vector
+                fireParticles.push_back(curr);
+            }
+        }
+
+        {
+            //// create object by reading an obj mesh
+            auto bunny = Add_Obj_Mesh_Object("obj/tree.obj");
+
+            //// set object's transform
+            Matrix4f t;
+            t << .5f, 0, 0, 55,
+                0, .3f, 0, 0,
+                0, 0, .5f, -70,
+                0, 0, 0, 1;
+            bunny->Set_Model_Matrix(t);
+
+            //// set object's material
+            // bunny->Set_Ka(Vector3f(0.1, 0.1, 0.1));
+            // bunny->Set_Kd(Vector3f(0.7, 0.7, 0.7));
+            // bunny->Set_Ks(Vector3f(2, 2, 2));
+            // bunny->Set_Shininess(128);
+
+            //// bind texture to object
+            bunny->Add_Texture("tex_color", OpenGLTextureLibrary::Get_Texture("snow_tree"));
+            // bunny->Add_Texture("tex_normal", OpenGLTextureLibrary::Get_Texture("bunny_normal"));
+
+            //// bind shader to object
+            bunny->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("basic"));
+        }
+
+
+        {
+            //// create object by reading an obj mesh
+            auto bunny = Add_Obj_Mesh_Object("obj/tree.obj");
+
+            //// set object's transform
+            Matrix4f t;
+            t << .5f, 0, 0, 60,
+                0, .3f, 0, 0,
+                0, 0, .5f, -60,
+                0, 0, 0, 1;
+            bunny->Set_Model_Matrix(t);
+
+            //// set object's material
+            // bunny->Set_Ka(Vector3f(0.1, 0.1, 0.1));
+            // bunny->Set_Kd(Vector3f(0.7, 0.7, 0.7));
+            // bunny->Set_Ks(Vector3f(2, 2, 2));
+            // bunny->Set_Shininess(128);
+
+            //// bind texture to object
+            bunny->Add_Texture("tex_color", OpenGLTextureLibrary::Get_Texture("snow_tree"));
+            // bunny->Add_Texture("tex_normal", OpenGLTextureLibrary::Get_Texture("bunny_normal"));
+
+            //// bind shader to object
+            bunny->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("basic"));
+        }
+
+        {
+            //// create object by reading an obj mesh
+            auto bunny = Add_Obj_Mesh_Object("obj/tree.obj");
+
+            //// set object's transform
+            Matrix4f t;
+            t << .5f, 0, 0, 50,
+                0, .3f, 0, 0,
+                0, 0, .5f, -70,
+                0, 0, 0, 1;
+            bunny->Set_Model_Matrix(t);
+
+            //// set object's material
+            // bunny->Set_Ka(Vector3f(0.1, 0.1, 0.1));
+            // bunny->Set_Kd(Vector3f(0.7, 0.7, 0.7));
+            // bunny->Set_Ks(Vector3f(2, 2, 2));
+            // bunny->Set_Shininess(128);
+
+            //// bind texture to object
+            bunny->Add_Texture("tex_color", OpenGLTextureLibrary::Get_Texture("snow_tree"));
+            // bunny->Add_Texture("tex_normal", OpenGLTextureLibrary::Get_Texture("bunny_normal"));
+
+            //// bind shader to object
+            bunny->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("basic"));
+        }
+
         /* Campfire */
         {
             auto campfire = Add_Obj_Mesh_Object("obj/campfire.OBJ");
@@ -516,16 +566,20 @@ public:
             auto tent = Add_Obj_Mesh_Object("obj/tent.OBJ");
 
             /* set object's transform */
-            Matrix4f t, r;
-            t << 1, 0, 0, 5.0f,
+            Matrix4f t, s, r;
+            t << 1, 0, 0, 7.0f,
                 0, 1, 0, 0,
-                0, 0, 1, -8.0f,
+                0, 0, 1, -11.0f,
+                0, 0, 0, 1;
+            s << 1.7, 0, 0, 0,
+                0, 1.7, 0, 0,
+                0, 0, 1.7, 0,
                 0, 0, 0, 1;
             r << cos(PI / 4), 0, -sin(PI / 4), 0,
                 0, 1, 0, 0,
                 sin(PI / 4), 0, cos(PI / 4), 0,
                 0, 0, 0, 1;
-            tent->Set_Model_Matrix(t * r);
+            tent->Set_Model_Matrix(t * s * r);
 
             /* bind texture to object */
             tent->Add_Texture("tex_color", OpenGLTextureLibrary::Get_Texture("tent_color"));
@@ -568,54 +622,6 @@ public:
         //         sqad->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("blend"));
         //     }
         // } 
-
-        /* Fire particles */
-        {
-
-            //// create object's transform
-            Matrix4f t;
-            t << 0.1f, 0.0f, 0.0f, 1.0f,
-                0.0f, 0.1f, 0.0f, 0.0f,
-                0.0f, 0.0f, 0.1f, -3.0f,
-                0.0f, 0.0f, 0.0f, 1.0f;
-
-            /* Define random number generator */
-            std::random_device rd;
-            std::default_random_engine generator(rd());
-            std::uniform_real_distribution<double> distribution(-1.0, 1.0);
-            /* create 8 fire particles */
-            for (int i = 0; i < NUM_FIRE_PARTICLES; ++i)
-            {
-                //// create object by reading an obj mesh
-                auto sqad = Add_Obj_Mesh_Object("obj/sqad.obj");
-
-                //// create vector multipliers
-
-                std::vector<double> vel;
-                vel.push_back(distribution(generator));
-                vel.push_back(distribution(generator) * 0.7 + 0.9);
-                vel.push_back(distribution(generator));
-
-                //// set model matrix
-                sqad->Set_Model_Matrix(t);
-
-                //// bind texture to object
-                sqad->Add_Texture("tex_color", OpenGLTextureLibrary::Get_Texture("fire_color"));
-
-                //// bind shader to object
-                sqad->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("billboard"));
-
-                /* Calculate time offset */
-                clock_t time = startTime + i * (2000 / NUM_FIRE_PARTICLES);
-                // std::cout << time << std::endl;
-
-                //// instantiate fire object
-                Fire curr(sqad, time, vel, t);
-
-                //// add particle to fire particles vector
-                fireParticles.push_back(curr);
-            }
-        }
 
         
 
