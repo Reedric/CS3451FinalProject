@@ -13,6 +13,7 @@
 #include <unordered_set>
 #include <vector>
 #include <string>
+#include <cmath>
 
 #include <cstdlib> // For rand() and srand()
 #include <ctime>   // For time()
@@ -24,6 +25,66 @@
 #define CLOCKS_PER_SEC 100000
 #endif
 
+#define PI 3.1415926535
+#define NUM_FIRE_PARTICLES 200
+
+class Fire 
+{
+    OpenGLTriangleMesh *obj;
+    clock_t time;
+    std::vector<double> initVel;
+    Matrix4f initTransform;
+    public:
+        Fire(OpenGLTriangleMesh *mesh, clock_t t, std::vector<double> vel, Matrix4f transform)
+        {
+        
+            obj = mesh;
+            time = t;
+            initVel = vel;
+            initTransform = transform;
+        }
+
+        OpenGLTriangleMesh* Fire::getObj()
+        {
+            return obj;
+        }
+
+        clock_t Fire::getTime()
+        {
+            return time;
+        }
+
+        std::vector<double> Fire::getVel()
+        {
+            return initVel;
+        }
+
+        Matrix4f Fire::getTransform()
+        {
+            return initTransform;
+        }
+
+        void Fire::setObj(OpenGLTriangleMesh *mesh)
+        {
+            obj = mesh;
+        }
+
+        void Fire::setTime(clock_t t)
+        {
+            time = t;
+        }
+
+        void Fire::setVel(std::vector<double> vel)
+        {
+            initVel = vel;
+        }
+
+        void Fire::setTransform(Matrix4f transform)
+        {
+            initTransform = transform;
+        }
+};
+
 class MyDriver : public OpenGLViewer
 {
     std::vector<OpenGLTriangleMesh *> mesh_object_array;
@@ -32,6 +93,7 @@ class MyDriver : public OpenGLViewer
     clock_t startTime;
     float groundLevel = -10.;
     int snowNum = 200;
+    std::vector<Fire> fireParticles;
 public:
     virtual void Initialize()
     {
@@ -79,6 +141,10 @@ public:
         // OpenGLTextureLibrary::Instance()->Add_Texture_From_File("tex/snow_color.png", "snow_color");
 
 
+        OpenGLTextureLibrary::Instance()->Add_Texture_From_File("tex/star.png", "star_color");
+        OpenGLTextureLibrary::Instance()->Add_Texture_From_File("tex/Campfire_MAT_BaseColor_00.jpg", "campfire_color");
+        OpenGLTextureLibrary::Instance()->Add_Texture_From_File("tex/Campfire_MAT_Normal_DX.jpg", "campfire_normal");
+        OpenGLTextureLibrary::Instance()->Add_Texture_From_File("tex/fire.png", "fire_color");
 
         //// Add all the lights you need for the scene (no more than 4 lights)
         //// The four parameters are position, ambient, diffuse, and specular.
@@ -87,9 +153,9 @@ public:
         //// You can also create your own lights by directly declaring them in a shader without using Add_Light().
         //// Here we declared three default lights for you. Feel free to add/delete/change them at your will.
 
-        opengl_window->Add_Light(Vector3f(3, 1, 3), Vector3f(0.1, 0.1, 0.1), Vector3f(1, 1, 1), Vector3f(0.5, 0.5, 0.5)); 
-        opengl_window->Add_Light(Vector3f(0, 0, -5), Vector3f(0.1, 0.1, 0.1), Vector3f(0.9, 0.9, 0.9), Vector3f(0.5, 0.5, 0.5));
-        opengl_window->Add_Light(Vector3f(-5, 1, 3), Vector3f(0.1, 0.1, 0.1), Vector3f(0.9, 0.9, 0.9), Vector3f(0.5, 0.5, 0.5));
+        opengl_window->Add_Light(Vector3f(3, 1, 3), Vector3f(0.1f, 0.1f, 0.1f), Vector3f(1, 1, 1), Vector3f(0.5f, 0.5f, 0.5f)); 
+        opengl_window->Add_Light(Vector3f(0, 0, -5), Vector3f(0.1f, 0.1f, 0.1f), Vector3f(0.9f, 0.9f, 0.9f), Vector3f(0.5f, 0.5f, 0.5f));
+        opengl_window->Add_Light(Vector3f(-5, 1, 3), Vector3f(0.1f, 0.1f, 0.1f), Vector3f(0.9f, 0.9f, 0.9f), Vector3f(0.5f, 0.5f, 0.5f));
 
         //// Add the background / environment
         //// Here we provide you with four default options to create the background of your scene:
@@ -224,6 +290,62 @@ public:
         //     //// bind shader to object (we do not bind texture for this object because we create noise for texture)
         //     terrain->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("terrain"));
         // }
+        // {
+        //     //// create object by reading an obj mesh
+        //     auto bunny = Add_Obj_Mesh_Object("obj/bunny.obj");
+
+        //     //// set object's transform
+        //     Matrix4f t;
+        //     t << 1, 0, 0, 1.5,
+        //         0, 1, 0, 0,
+        //         0, 0, 1, 0,
+        //         0, 0, 0, 1;
+        //     bunny->Set_Model_Matrix(t);
+
+        //     //// set object's material
+        //     bunny->Set_Ka(Vector3f(0.1, 0.1, 0.1));
+        //     bunny->Set_Kd(Vector3f(0.7, 0.7, 0.7));
+        //     bunny->Set_Ks(Vector3f(2, 2, 2));
+        //     bunny->Set_Shininess(128);
+
+        //     //// bind texture to object
+        //     bunny->Add_Texture("tex_color", OpenGLTextureLibrary::Get_Texture("bunny_color"));
+        //     bunny->Add_Texture("tex_normal", OpenGLTextureLibrary::Get_Texture("bunny_normal"));
+
+        //     //// bind shader to object
+        //     bunny->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("basic"));
+        // }
+
+        //// Here we show an example of adding a mesh with noise-terrain (A6)
+        {
+            //// create object by reading an obj mesh
+            auto terrain = Add_Obj_Mesh_Object("obj/plane.obj");
+
+            //// set object's transform
+            Matrix4f r, s, t;
+            r << 1, 0, 0, 0,
+                0, 0, 1, 0,
+                0, -1, 0, 0,
+                0, 0, 0, 1;
+            s << 2.0, 0, 0, 0,
+                0, 2.0, 0, 0,
+                0, 0, 2.0, 0,
+                0, 0, 0, 1;
+            t << 1, 0, 0, -2,
+                 0, 1, 0, 0.5,
+                 0, 0, 1, 0,
+                 0, 0, 0, 1,
+            terrain->Set_Model_Matrix(t * s * r);
+
+            //// set object's material
+            terrain->Set_Ka(Vector3f(0.1f, 0.1f, 0.1f));
+            terrain->Set_Kd(Vector3f(0.7f, 0.7f, 0.7f));
+            terrain->Set_Ks(Vector3f(1, 1, 1));
+            terrain->Set_Shininess(128.f);
+
+            //// bind shader to object (we do not bind texture for this object because we create noise for texture)
+            terrain->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("terrain"));
+        }
 
         //// Here we show an example of adding a transparent object with alpha blending
         //// This example will be useful if you implement objects such as tree leaves, grass blades, flower pedals, etc.
@@ -250,6 +372,26 @@ public:
         //// Here we show an example of adding a billboard particle with a star shape using alpha blending
         //// The billboard is rendered with its texture and is always facing the camera.
         //// This example will be useful if you plan to implement a CPU-based particle system.
+        // {
+        //     //// create object by reading an obj mesh
+        //     auto sqad = Add_Obj_Mesh_Object("obj/sqad.obj");
+
+        //     //// set object's transform
+        //     Matrix4f t;
+        //     t << 1, 0, 0, 0,
+        //          0, 1, 0, 0,
+        //          0, 0, 1, 2.5,
+        //          0, 0, 0, 1;
+        //     sqad->Set_Model_Matrix(t);
+
+        //     //// bind texture to object
+        //     sqad->Add_Texture("tex_color", OpenGLTextureLibrary::Get_Texture("star_color"));
+
+        //     //// bind shader to object
+        //     sqad->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("billboard"));
+        // }
+
+        /* Load and render fire place */
         {
             //// create object by reading an obj mesh
             srand(time(0)); // Seed with the current time
@@ -311,6 +453,105 @@ public:
 
             // //// bind shader to object
             // sqad->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("billboard"));
+            /* create object by reading an obj mesh */
+            auto fireplace = Add_Obj_Mesh_Object("obj/campfire.OBJ");
+
+            /* set object's transform */
+            Matrix4f t;
+            t << 0.02f, 0, 0, -2.5,
+                0, 0.02f, 0, 0,
+                0, 0, 0.02f, -2.5,
+                0, 0, 0, 1;
+            fireplace->Set_Model_Matrix(t);
+
+            /* bind texture to object */
+            fireplace->Add_Texture("tex_color", OpenGLTextureLibrary::Get_Texture("campfire_color"));
+            fireplace->Add_Texture("tex_normal", OpenGLTextureLibrary::Get_Texture("campfire_normal"));
+
+            /* bind shader to object */
+            fireplace->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("basic"));
+        }
+
+        /* Flame on campfire */
+        // {
+        //     /* make three flame objects */
+        //     for (int i = 0; i < 3; ++i)
+        //     {
+        //         /* create object by reading an obj mesh */
+        //         auto sqad = Add_Obj_Mesh_Object("obj/sqad.obj");
+
+        //         /* create object's transform */
+        //         Matrix4f t, s, r;
+        //         t << 1.0f, 0.0f, 0.0f, -2.5f,
+        //             0.0f, 1.0f, 0.0f, 0.0f,
+        //             0.0f, 0.0f, 1.0f, -2.5f,
+        //             0.0f, 0.0f, 0.0f, 1.0f;
+        //         s << 1.2f, 0.0f, 0.0f, 0.0f,
+        //             0.0f, 1.2f, 0.0f, 0.0f,
+        //             0.0f, 0.0f, 1.2f, 0.0f,
+        //             0.0f, 0.0f, 0.0f, 1.0f;
+        //         r << cos(i * 2 * PI / 3), 0.0f, sin(i * 2 * PI / 3), 0.0f,
+        //             0.0f, 1.0f, 0.0f, 0.0f,
+        //             -sin(i * 2 * PI / 3), 0.0f, cos(i * 2 * PI / 3), 0.0f,
+        //             0.0f, 0.0f, 0.0f, 1.0f;
+
+        //         /* set model matrix */
+        //         sqad->Set_Model_Matrix(t * s * r);
+
+        //         /* bind texture to object */
+        //         sqad->Add_Texture("tex_color", OpenGLTextureLibrary::Get_Texture("flame_color"));
+
+        //         /* bind shader to object */
+        //         sqad->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("blend"));
+        //     }
+        // } 
+
+        /* Fire particles */
+        {
+
+            //// create object's transform
+            Matrix4f t;
+            t << 0.1f, 0.0f, 0.0f, -2.5f,
+                0.0f, 0.1f, 0.0f, 0.0f,
+                0.0f, 0.0f, 0.1f, -2.5f,
+                0.0f, 0.0f, 0.0f, 1.0f;
+
+            /* Define random number generator */
+            std::random_device rd;
+            std::default_random_engine generator(rd());
+            std::uniform_real_distribution<double> distribution(-1.0, 1.0);
+            /* create 8 fire particles */
+            for (int i = 0; i < NUM_FIRE_PARTICLES; ++i)
+            {
+                //// create object by reading an obj mesh
+                auto sqad = Add_Obj_Mesh_Object("obj/sqad.obj");
+
+                //// create vector multipliers
+
+                std::vector<double> vel;
+                vel.push_back(distribution(generator));
+                vel.push_back(distribution(generator) * 0.7 + 0.9);
+                vel.push_back(distribution(generator));
+
+                //// set model matrix
+                sqad->Set_Model_Matrix(t);
+
+                //// bind texture to object
+                sqad->Add_Texture("tex_color", OpenGLTextureLibrary::Get_Texture("fire_color"));
+
+                //// bind shader to object
+                sqad->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("blend"));
+
+                /* Calculate time offset */
+                clock_t time = startTime + i * (2000 / NUM_FIRE_PARTICLES);
+                // std::cout << time << std::endl;
+
+                //// instantiate fire object
+                Fire curr(sqad, time, vel, t);
+
+                //// add particle to fire particles vector
+                fireParticles.push_back(curr);
+            }
         }
 
         //// Here we show an example of shading (ray-tracing) a sphere with environment mapping
@@ -451,7 +692,48 @@ public:
 
         if (skybox){
             skybox->setTime(GLfloat(clock() - startTime) / CLOCKS_PER_SEC);
-        }   
+        }
+
+        for (auto& fire : fireParticles)
+        {
+
+            // Get time passed since last reset
+            double t = ((double) clock() - fire.getTime()) / CLOCKS_PER_SEC;
+
+            // std::cout << "Time passed since last reset: " << t << " seconds." << std::endl;
+            // std::vector<double> vel = *(fire)->initVel;
+            // std::cout << "Time since last reset: " << t << std::endl;
+            // std::cout << fire.getTransform() << std::endl;
+            // std::cout << t << std::endl;
+            // std::cout << clock() << std::endl;
+            
+            // If 2 seconds have passed since last reset, reset fire's transform to original transform and reset t to now
+            if (t >= 2.0)
+            {
+                fire.getObj()->Set_Model_Matrix(fire.getTransform());
+                fire.setTime(clock());
+                
+                // std::cout << fire->time << std::endl;
+            }
+            else if (t >= 0.0)
+            {
+                // Calculate x position
+                double x = sin((fire.getVel()[0] + t) * PI);
+
+                // Calculate z position
+                double z = cos((fire.getVel()[2] + t) * PI);
+                
+                // Make translation matrix
+                Matrix4f newTransform;
+                newTransform << 0.0f, 0.0f, 0.0f, x * fire.getVel()[0],
+                    0.0f, 0.0f, 0.0f, t * fire.getVel()[1],
+                    0.0f, 0.0f, 0.0f, z * fire.getVel()[2],
+                    0.0f, 0.0f, 0.0f, 0.0f;
+                
+                // Set fire's transform matrix
+                fire.getObj()->Set_Model_Matrix(newTransform + fire.getTransform());
+            }
+        }
 
         OpenGLViewer::Toggle_Next_Frame();
     }
