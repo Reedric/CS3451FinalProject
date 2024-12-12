@@ -185,7 +185,7 @@ public:
         
         //// Background Option (3): Sky box
         //// Here we provide a default implementation of a sky box; customize it for your own sky box
-        /*
+        
         {
             // from https://www.humus.name/index.php?page=Textures
             const std::vector<std::string> cubemap_files{
@@ -202,7 +202,7 @@ public:
             skybox->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("skybox"));
             skybox->Initialize();
         }
-        */
+        
 
         //// Background Option (4): Sky sphere
         //// Here we provide a default implementation of a textured sphere; customize it for your own sky sphere
@@ -233,32 +233,32 @@ public:
         // }
 
         //// Here we load a bunny object with the basic shader to show how to add an object into the scene
-        {
-            //// create object by reading an obj mesh
-            auto bunny = Add_Obj_Mesh_Object("obj/bunny.obj");
+        // {
+        //     //// create object by reading an obj mesh
+        //     auto bunny = Add_Obj_Mesh_Object("obj/bunny.obj");
 
-            //// set object's transform
-            Matrix4f t;
-            t << 1, 0, 0, 1.5,
-                0, 1, 0, 0,
-                0, 0, 1, 0,
-                0, 0, 0, 1;
-            Matrix4f scaler;
-            bunny->Set_Model_Matrix(t);
+        //     //// set object's transform
+        //     Matrix4f t;
+        //     t << 1, 0, 0, 1.5,
+        //         0, 1, 0, 0,
+        //         0, 0, 1, 0,
+        //         0, 0, 0, 1;
+        //     Matrix4f scaler;
+        //     bunny->Set_Model_Matrix(t);
 
-            //// set object's material
-            bunny->Set_Ka(Vector3f(0.1, 0.1, 0.1));
-            bunny->Set_Kd(Vector3f(0.7, 0.7, 0.7));
-            bunny->Set_Ks(Vector3f(2, 2, 2));
-            bunny->Set_Shininess(128);
+        //     //// set object's material
+        //     bunny->Set_Ka(Vector3f(0.1, 0.1, 0.1));
+        //     bunny->Set_Kd(Vector3f(0.7, 0.7, 0.7));
+        //     bunny->Set_Ks(Vector3f(2, 2, 2));
+        //     bunny->Set_Shininess(128);
 
-            //// bind texture to object
-            bunny->Add_Texture("tex_color", OpenGLTextureLibrary::Get_Texture("bunny_color"));
-            bunny->Add_Texture("tex_normal", OpenGLTextureLibrary::Get_Texture("bunny_normal"));
+        //     //// bind texture to object
+        //     bunny->Add_Texture("tex_color", OpenGLTextureLibrary::Get_Texture("bunny_color"));
+        //     bunny->Add_Texture("tex_normal", OpenGLTextureLibrary::Get_Texture("bunny_normal"));
 
-            //// bind shader to object
-            bunny->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("basic"));
-        }
+        //     //// bind shader to object
+        //     bunny->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("basic"));
+        // }
 
         //// Here we show an example of adding a mesh with noise-terrain (A6)
         // {
