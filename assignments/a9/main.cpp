@@ -257,9 +257,9 @@ public:
 
             for (int i = 0; i < snowNum; i++) {
 
-                int randomNumberX = std::rand() % 6 - 3; // Random number between -5 and 5
-                int randomNumberY = 1 + std::rand() % (5 - 1 + 1); // Random number between -5 and 5
-                int randomNumberZ = std::rand() % 6 - 3; // Random number between -5 and 5
+                int randomNumberX = std::rand() % 6 - 3; 
+                int randomNumberY = 1 + std::rand() % (5 - 1 + 1); 
+                int randomNumberZ = std::rand() % 6 - 3; 
                 
 
 
@@ -279,6 +279,10 @@ public:
 
                 //// bind texture to object
                 sqad->Add_Texture("tex_color", OpenGLTextureLibrary::Get_Texture("star_color"));
+
+
+                // sqad->Add_Texture("tex_color", OpenGLTextureLibrary::Get_Texture("snow_color"));
+
 
                 //// bind shader to object
                 sqad->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("billboard"));
