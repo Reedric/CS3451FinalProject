@@ -156,6 +156,7 @@ public:
         opengl_window->Add_Light(Vector3f(3, 1, 3), Vector3f(0.1f, 0.1f, 0.1f), Vector3f(1, 1, 1), Vector3f(0.5f, 0.5f, 0.5f)); 
         opengl_window->Add_Light(Vector3f(0, 0, -5), Vector3f(0.1f, 0.1f, 0.1f), Vector3f(0.9f, 0.9f, 0.9f), Vector3f(0.5f, 0.5f, 0.5f));
         opengl_window->Add_Light(Vector3f(-5, 1, 3), Vector3f(0.1f, 0.1f, 0.1f), Vector3f(0.9f, 0.9f, 0.9f), Vector3f(0.5f, 0.5f, 0.5f));
+        opengl_window->Add_Light(Vector3f(1, 0, -3), Vector3f(0.1f, 0.1f, 0.1f), Vector3f(0.9f, 0.9f, 0.9f), Vector3f(0.5f, 0.5f, 0.5f));
 
         //// Add the background / environment
         //// Here we provide you with four default options to create the background of your scene:
@@ -233,32 +234,32 @@ public:
         // }
 
         //// Here we load a bunny object with the basic shader to show how to add an object into the scene
-        {
-            //// create object by reading an obj mesh
-            auto bunny = Add_Obj_Mesh_Object("obj/bunny.obj");
+        // {
+        //     //// create object by reading an obj mesh
+        //     auto bunny = Add_Obj_Mesh_Object("obj/bunny.obj");
 
-            //// set object's transform
-            Matrix4f t;
-            t << 1, 0, 0, 1.5,
-                0, 1, 0, 0,
-                0, 0, 1, 0,
-                0, 0, 0, 1;
-            Matrix4f scaler;
-            bunny->Set_Model_Matrix(t);
+        //     //// set object's transform
+        //     Matrix4f t;
+        //     t << 1, 0, 0, 1.5,
+        //         0, 1, 0, 0,
+        //         0, 0, 1, 0,
+        //         0, 0, 0, 1;
+        //     Matrix4f scaler;
+        //     bunny->Set_Model_Matrix(t);
 
-            //// set object's material
-            bunny->Set_Ka(Vector3f(0.1, 0.1, 0.1));
-            bunny->Set_Kd(Vector3f(0.7, 0.7, 0.7));
-            bunny->Set_Ks(Vector3f(2, 2, 2));
-            bunny->Set_Shininess(128);
+        //     //// set object's material
+        //     bunny->Set_Ka(Vector3f(0.1, 0.1, 0.1));
+        //     bunny->Set_Kd(Vector3f(0.7, 0.7, 0.7));
+        //     bunny->Set_Ks(Vector3f(2, 2, 2));
+        //     bunny->Set_Shininess(128);
 
-            //// bind texture to object
-            bunny->Add_Texture("tex_color", OpenGLTextureLibrary::Get_Texture("bunny_color"));
-            bunny->Add_Texture("tex_normal", OpenGLTextureLibrary::Get_Texture("bunny_normal"));
+        //     //// bind texture to object
+        //     bunny->Add_Texture("tex_color", OpenGLTextureLibrary::Get_Texture("bunny_color"));
+        //     bunny->Add_Texture("tex_normal", OpenGLTextureLibrary::Get_Texture("bunny_normal"));
 
-            //// bind shader to object
-            bunny->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("basic"));
-        }
+        //     //// bind shader to object
+        //     bunny->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("basic"));
+        // }
 
         //// Here we show an example of adding a mesh with noise-terrain (A6)
         // {
@@ -327,12 +328,12 @@ public:
                 0, 0, 1, 0,
                 0, -1, 0, 0,
                 0, 0, 0, 1;
-            s << 2.0, 0, 0, 0,
-                0, 2.0, 0, 0,
-                0, 0, 2.0, 0,
+            s << 4.0, 0, 0, 0,
+                0, 4.0, 0, 0,
+                0, 0, 4.0, 0,
                 0, 0, 0, 1;
             t << 1, 0, 0, -2,
-                 0, 1, 0, 0.5,
+                 0, 1, 0, 0,
                  0, 0, 1, 0,
                  0, 0, 0, 1,
             terrain->Set_Model_Matrix(t * s * r);
@@ -458,9 +459,9 @@ public:
 
             /* set object's transform */
             Matrix4f t;
-            t << 0.02f, 0, 0, -2.5,
+            t << 0.02f, 0, 0, 1.0f,
                 0, 0.02f, 0, 0,
-                0, 0, 0.02f, -2.5,
+                0, 0, 0.02f, -3.0f,
                 0, 0, 0, 1;
             fireplace->Set_Model_Matrix(t);
 
@@ -511,9 +512,9 @@ public:
 
             //// create object's transform
             Matrix4f t;
-            t << 0.1f, 0.0f, 0.0f, -2.5f,
+            t << 0.1f, 0.0f, 0.0f, 1.0f,
                 0.0f, 0.1f, 0.0f, 0.0f,
-                0.0f, 0.0f, 0.1f, -2.5f,
+                0.0f, 0.0f, 0.1f, -3.0f,
                 0.0f, 0.0f, 0.0f, 1.0f;
 
             /* Define random number generator */
@@ -540,7 +541,7 @@ public:
                 sqad->Add_Texture("tex_color", OpenGLTextureLibrary::Get_Texture("fire_color"));
 
                 //// bind shader to object
-                sqad->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("blend"));
+                sqad->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("billboard"));
 
                 /* Calculate time offset */
                 clock_t time = startTime + i * (2000 / NUM_FIRE_PARTICLES);
